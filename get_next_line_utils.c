@@ -6,12 +6,13 @@
 /*   By: jordan <jordan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/25 00:00:00 by ton_login         #+#    #+#             */
-/*   Updated: 2026/10/25 11:49:39 by jordan           ###   ########.fr       */
+/*   Updated: 2026/10/27 18:41:24 by jordan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/* Copie les caracteres apres le '\n' dans une nouvelle chaine. */
 char	*extract_rest(char *keep, int i)
 {
 	int		j;
@@ -37,6 +38,7 @@ char	*extract_rest(char *keep, int i)
 	return (rest);
 }
 
+/* Copie la ligne jusqu'au '\n' inclus, s'il existe. */
 char	*extract_line(char *keep)
 {
 	int		i;
@@ -61,6 +63,7 @@ char	*extract_line(char *keep)
 	return (line);
 }
 
+/* Retourne la longueur de la chaine sans compter le '\0' */
 int	ft_lenstr(char *s)
 {
 	int	i;
@@ -71,6 +74,7 @@ int	ft_lenstr(char *s)
 	return (i);
 }
 
+/* Concatene keep et buffer dans une nouvelle allocation. */
 char	*ft_join(char *keep, char *buffer)
 {
 	int		i;
@@ -99,6 +103,7 @@ char	*ft_join(char *keep, char *buffer)
 	return (dest);
 }
 
+/* Retourne l'index du '\n', ou -1 s'il est absent. */
 int	ft_found_n(char *s)
 {
 	int	i;

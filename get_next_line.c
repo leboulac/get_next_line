@@ -6,12 +6,13 @@
 /*   By: jordan <jordan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/25 11:50:18 by jordan            #+#    #+#             */
-/*   Updated: 2026/10/25 11:50:36 by jordan           ###   ########.fr       */
+/*   Updated: 2026/10/27 18:38:50 by jordan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/* Libere buffer et keep, puis remet keep a NULL. */
 static char	*gnl_cleanup(char **keep, char *buffer)
 {
 	free(buffer);
@@ -20,6 +21,7 @@ static char	*gnl_cleanup(char **keep, char *buffer)
 	return (NULL);
 }
 
+/* Lit jusqu'au '\n' ou EOF et ajoute les donnees lues a keep. */
 static int	gnl_read(int fd, char **keep, char *buffer)
 {
 	ssize_t	bytes_read;
@@ -42,6 +44,7 @@ static int	gnl_read(int fd, char **keep, char *buffer)
 	return (0);
 }
 
+/* Extrait la ligne et conserve le reste dans keep si necessaire. */
 static char	*gnl_extract(char **keep)
 {
 	char	*line;
@@ -69,6 +72,7 @@ static char	*gnl_extract(char **keep)
 	return (line);
 }
 
+/* Lit et retourne la prochaine ligne, ou NULL si necessaire. */
 char	*get_next_line(int fd)
 {
 	static char	*keep;
