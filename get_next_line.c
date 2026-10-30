@@ -6,92 +6,114 @@
 /*   By: jordan <jordan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/25 11:50:18 by jordan            #+#    #+#             */
-/*   Updated: 2026/10/27 18:38:50 by jordan           ###   ########.fr       */
+/*   Updated: 2026/10/29 13:58:48 by jordan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-/* Libere buffer et keep, puis remet keep a NULL. */
-static char	*gnl_cleanup(char **keep, char *buffer)
+#include "get_next_line.h"
+
+static char	*gnl_free(char *keep, char *buffer)
 {
+	free(keep);
 	free(buffer);
-	free(*keep);
-	*keep = NULL;
 	return (NULL);
 }
 
-/* Lit jusqu'au '\n' ou EOF et ajoute les donnees lues a keep. */
-static int	gnl_read(int fd, char **keep, char *buffer)
+static char	*gnl_read(int fd, char *keep)
 {
-	ssize_t	bytes_read;
+	char	*buffer;
 	char	*tmp;
+	ssize_t	bytes_read;
 
-	while (ft_found_n(*keep) == -1)
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (buffer == NULL)
+		return (gnl_free(keep, NULL));
+	while (ft_found_n(keep) == -1)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read < 0)
-			return (-1);
+			return (gnl_free(keep, buffer));
 		if (bytes_read == 0)
 			break ;
 		buffer[bytes_read] = '\0';
-		tmp = ft_join(*keep, buffer);
+		tmp = ft_join(keep, buffer);
 		if (tmp == NULL)
-			return (-1);
-		free(*keep);
-		*keep = tmp;
+			return (gnl_free(keep, buffer));
+		free(keep);
+		keep = tmp;
 	}
-	return (0);
+	free(buffer);
+	return (keep);
 }
 
-/* Extrait la ligne et conserve le reste dans keep si necessaire. */
-static char	*gnl_extract(char **keep)
+static char	*gnl_rest(char *keep)
 {
-	char	*line;
-	char	*tmp;
+	char	*rest;
+	int		i;
 
-	if ((*keep)[0] == '\0')
-		return (gnl_cleanup(keep, NULL));
-	line = extract_line(*keep);
-	if (line == NULL)
-		return (gnl_cleanup(keep, NULL));
-	if (ft_found_n(*keep) == -1
-		|| (*keep)[ft_found_n(*keep) + 1] == '\0')
+	i = ft_found_n(keep);
+	if (i == -1)
 	{
-		gnl_cleanup(keep, NULL);
-		return (line);
+		free(keep);
+		return (NULL);
 	}
-	tmp = extract_rest(*keep, ft_found_n(*keep));
-	if (tmp == NULL)
+	if (keep[i + 1] == '\0')
 	{
-		free(line);
-		return (gnl_cleanup(keep, NULL));
+		free(keep);
+		return (NULL);
 	}
-	free(*keep);
-	*keep = tmp;
-	return (line);
+	rest = extract_rest(keep, i);
+	free(keep);
+	return (rest);
 }
 
-/* Lit et retourne la prochaine ligne, ou NULL si necessaire. */
-char	*get_next_line(int fd)
+static char	*gnl_prepare(int fd, char *keep)
 {
-	static char	*keep;
-	char		*buffer;
-
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (buffer == NULL)
-		return (NULL);
 	if (keep == NULL)
 	{
 		keep = malloc(1);
 		if (keep == NULL)
-			return (gnl_cleanup(&keep, buffer));
+			return (NULL);
 		keep[0] = '\0';
 	}
-	if (gnl_read(fd, &keep, buffer) == -1)
-		return (gnl_cleanup(&keep, buffer));
-	free(buffer);
-	return (gnl_extract(&keep));
+	keep = gnl_read(fd, keep);
+	if (keep == NULL)
+		return (NULL);
+	if (keep[0] == '\0')
+	{
+		free(keep);
+		return (NULL);
+	}
+	return (keep);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*keep;
+	char		*line;
+	int			i;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	keep = gnl_prepare(fd, keep);
+	if (keep == NULL)
+		return (NULL);
+	line = extract_line(keep);
+	if (line == NULL)
+		return (keep = gnl_free(keep, NULL));
+	i = ft_found_n(keep);
+	if (i == -1 || keep[i + 1] == '\0')
+	{
+		keep = gnl_free(keep, NULL);
+		return (line);
+	}
+	keep = gnl_rest(keep);
+	if (keep == NULL)
+	{
+		free(line);
+		return (NULL);
+	}
+	return (line);
 }

@@ -1,81 +1,37 @@
 *This project has been created as part of the 42 curriculum by jgaine.*
 
-# get_next_line
-
 ## Description
 
-**get_next_line** is a project from the 42 curriculum.
+Get Next Line is a project that consists of creating a function in C that reads and returns one line from a file each time the function is called.
 
-The goal is to implement a function in C that reads and returns one line at a time from a file descriptor.
+## Algorithm
 
-This project introduces important concepts such as:
+The `get_next_line()` function retrieves one line from a file each time it is called.
 
-- File descriptors and the `read()` function
-- Static variables
-- Dynamic memory allocation
-- Buffer management
-- Memory management and error handling
+To achieve this, it uses a static variable called `keep`, which stores characters that have already been read but have not yet been returned. This variable allows these characters to be reused during the next function call.
 
-## Function Prototype
+Reading is performed by `gnl_read()` using the `read()` function. Each call to `read()` reads up to `BUFFER_SIZE` bytes. A loop is necessary because a single call to `read()` does not guarantee that a complete line will be retrieved. The characters read are appended to `keep` until a newline character (`\n`) is found or the end of the file is reached.
 
-```c
-char *get_next_line(int fd);
-```
+During concatenation, a temporary variable called `tmp` is used to store the address of the new string. This makes it possible to check whether the memory allocation was successful before freeing the previous `keep`, preventing memory leaks.
 
-The function reads from the given file descriptor and returns the next available line.
+The `extract_line()` function creates a new string containing only the line to be returned. This allocation separates the line from the contents of `keep`, allowing their memory to be managed independently.
 
-- Each call returns one line.
-- The returned line includes the newline character (`\n`) when present.
-- The last line is returned even if it does not end with `\n`.
-- The function returns `NULL` when there is nothing left to read or when an error occurs.
+Next, `gnl_rest()` keeps the characters located after the newline character (`\n`) in `keep`. These characters belong to the next line and must not be lost because `read()` will not read them again.
 
-The returned string is dynamically allocated and must be freed by the caller.
+Finally, if a reading error occurs, the allocated memory is freed before returning `NULL` to prevent memory leaks.
 
-## Project Files
+## Instructions
 
-```text
-get_next_line/
-├── get_next_line.c
-├── get_next_line_utils.c
-├── get_next_line.h
-└── README.md
-```
+To test the project, a `main.c` file can be used to call `get_next_line()` and read a text file.
 
-### File descriptions
+### Example of main.c
 
-**get_next_line.c**
-
-Contains the main function and the logic for reading, storing, and extracting lines.
-
-**get_next_line_utils.c**
-
-Contains helper functions used for string manipulation and memory management.
-
-**get_next_line.h**
-
-Contains the function prototypes, required libraries, and the default `BUFFER_SIZE` definition.
-
-## Compilation
-
-The project can be compiled using `cc` with the required flags:
-
-```bash
-cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 \
-get_next_line.c get_next_line_utils.c main.c -o test_gnl
-```
-
-`main.c` is a separate test file and is not part of the mandatory submission.
-
-The `BUFFER_SIZE` value can be changed during compilation.
-
-If no value is provided, the project uses a default buffer size defined in `get_next_line.h`.
-
-## Usage Example
+Here is an example program to test `get_next_line()`:
 
 ```c
+#include <stdio.h>
 #include "get_next_line.h"
 #include <fcntl.h>
-#include <stdio.h>
 
 int	main(void)
 {
@@ -83,8 +39,11 @@ int	main(void)
 	char	*line;
 
 	fd = open("test.txt", O_RDONLY);
-	if (fd < 0)
+	if (fd == -1)
+	{
+		printf("ERROR\n");
 		return (1);
+	}
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
@@ -97,32 +56,43 @@ int	main(void)
 }
 ```
 
-The function can also read from standard input:
+This program:
 
-```c
-char *line = get_next_line(0);
+1. Opens the `test.txt` file in read-only mode using `open()`.
+2. Calls `get_next_line()` to retrieve the first line.
+3. Displays each line using `printf()`.
+4. Frees the memory allocated for each line using `free()`.
+5. Continues until `get_next_line()` returns `NULL`.
+6. Closes the file descriptor using `close()`.
+
+Each line returned by `get_next_line()` is dynamically allocated. Therefore, it must be freed after use to prevent memory leaks.
+
+### Compilation
+
+To compile the program with the required flags:
+
+```bash
+cc -Wall -Wextra -Werror main.c get_next_line.c get_next_line_utils.c -o gnl
 ```
 
-## How It Works
+It is also possible to define the buffer size during compilation using the `-D` option. For example, to use a buffer size of 6 bytes:
 
-The function uses a **static variable** to preserve unread data between calls.
+```bash
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=6 main.c get_next_line.c get_next_line_utils.c -o gnl
+```
 
-1. Read data from the file descriptor using `read()`.
-2. Store the data in a dynamically allocated string.
-3. Continue reading until a newline is found or the end of the file is reached.
-4. Extract and return the next line.
-5. Keep any remaining data for the next function call.
-6. Free allocated memory when it is no longer needed.
+If no value is specified, `BUFFER_SIZE` is set to 4 by default.
 
-This approach allows the function to return one line at a time without losing unread data.
+To run the program, place a `test.txt` file in the same directory and execute:
+
+```bash
+./gnl
+```
 
 ## Resources
 
-During the development of this project, I used several resources to improve my understanding of C programming and the concepts behind `get_next_line`:
+To complete this project, I used several resources:
 
-- **YouTube videos:** To better understand file descriptors, the `read()` function, static variables, and memory management.
-- **GitHub:** To explore different approaches and understand how other developers structure their projects.
-- **Programming forums:** To find explanations, discuss common issues, and understand potential errors.
-- **ChatGPT:** To clarify C concepts, prepare test cases, debug issues, and check memory management.
-
-These resources helped me improve my understanding of the project and develop my own implementation.
+- YouTube videos to better understand how `get_next_line()` works.
+- Websites to improve my knowledge of the C programming language.
+- ChatGPT to help me understand certain concepts, including reading with `read()`, static variables, memory allocation, and error handling. AI also helped me think through my algorithm and write this README.
