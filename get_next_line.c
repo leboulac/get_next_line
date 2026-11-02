@@ -6,11 +6,9 @@
 /*   By: jordan <jordan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/25 11:50:18 by jordan            #+#    #+#             */
-/*   Updated: 2026/10/29 13:58:48 by jordan           ###   ########.fr       */
+/*   Updated: 2026/11/02 15:25:41 by jordan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "get_next_line.h"
 
 #include "get_next_line.h"
 
