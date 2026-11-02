@@ -95,4 +95,4 @@ To complete this project, I used several resources:
 
 - YouTube videos to better understand how `get_next_line()` works.
 - Websites to improve my knowledge of the C programming language.
-- ChatGPT to help me understand certain concepts, including reading with `read()`, static variables, memory allocation, and error handling. AI also helped me think through my algorithm and write this README.
+- ChatGPT helped me write my README and understand certain concepts.
